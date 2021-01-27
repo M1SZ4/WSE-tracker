@@ -72,12 +72,15 @@ class WalletsController extends Controller
         $wallet = DB::table('wallets')->where('name', $name)->get();
         $transactions = DB::table('transactions')->where('wallet_id', $wallet[0]->id)->get();
         $walletStocks = DB::table('wallet_stocks')->where('wallet_id', $wallet[0]->id)->get();
+//        array for chart in user wallet view
         $dataPoints = array();
         foreach ($walletStocks as $ws) {
-            $stockName = (DB::table('stocks')->select('name')->where('id',$ws->stock_id)->get())[0]->name;
+            $stockName = (DB::table('stocks')->select('name')->where('id',$ws->stock_id)
+                ->get())[0]->name;
             array_push($dataPoints, array("label"=>($stockName), "y"=>($ws->price)));
         }
-        return view('userWallet',  ['wallets'=>$wallet], ['transactions'=>$transactions])->with(['walletStocks'=>$walletStocks])->with(['dataPoints'=>$dataPoints]); //->with(['dataPoints'=>$dataPoints]
+        return view('userWallet',  ['wallets'=>$wallet], ['transactions'=>$transactions])
+            ->with(['walletStocks'=>$walletStocks])->with(['dataPoints'=>$dataPoints]);
     }
 
     /**

@@ -42,7 +42,10 @@ class StocksController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-//            kurs, prowizje >0
+            'comment' => 'max:255',
+            'price' => 'numeric|gt:0',
+            'comission' => 'numeric|gt:0',
+            'amount' => 'numeric|gt:0',
         ]);
         if (\Auth::user() == null) {
             return view('home'); // jezli uzytkownik nie jest zalogowany
@@ -93,38 +96,6 @@ class StocksController extends Controller
             }
             return redirect(route('show', $request->wallet_name));
         }
-
-//        $this->validate($request, [
-////            kurs, prowizje >0
-//        ]);
-//        if (\Auth::user() == null) {
-//            return view('home'); // jezli uzytkownik nie jest zalogowany
-//        }
-//        $stock_id = (Stock::select('id')->where('name', $request->name)->get())[0]->id;
-//        $wallet_id = (Wallet::select('id')->where('name', $request->wallet_name)->get())[0]->id;
-//
-//        $transaction = new Transaction();
-//        $transaction->stock_id = $stock_id;
-//        $transaction->wallet_id = $wallet_id;
-//        $transaction->type = $request->transaction_type;
-//        $transaction->data = $request->date; //data
-//        $transaction->amount = $request->amount;
-//        $transaction->comission = $request->comission;
-//        $transaction->price = (($request->price)*($request->amount)) + ($request->comission); //cena
-//        $transaction->comment = $request->comment;
-//
-//        $WalletStocks = new WalletStocks();
-//        $WalletStocks->stock_id = $stock_id;
-//        $WalletStocks->wallet_id = $wallet_id;
-//        $WalletStocks->amount = $request->amount;
-//        $WalletStocks->comission = $request->comission;
-//        $WalletStocks->price = (($request->price)*($request->amount)) + ($request->comission); //cena
-//        $WalletStocks->data = $request->date; //data
-//
-//        if ($transaction->save() and $WalletStocks->save()) {
-//            return redirect(route('show', $request->wallet_name));
-//        }
-//        return redirect(route('show', $request->wallet_name));//, $request->wallet_name)
     }
 
 
@@ -147,11 +118,7 @@ class StocksController extends Controller
      */
     public function edit()
     {
-//        $comment = Comment::find($id); //Sprawdzenie czy użytkownik jest autorem komentarza
-//        if (\Auth::user()->id != $comment->user_id) {
-//            return back()->with(['success' => false, 'message_type' => 'danger', 'message' => 'Nie posiadasz uprawnień do przeprowadzenia tej operacji.']);
-//        }
-//        return view('commentsEditForm', ['comment'=>$comment]);
+
     }
 
     /**
@@ -163,9 +130,11 @@ class StocksController extends Controller
      */
     public function update(Request $request)
     {
-
         $this->validate($request, [
-//            kurs, prowizje >0
+            'comment' => 'max:255',
+            'price' => 'numeric|gt:0',
+            'comission' => 'numeric|gt:0',
+            'amount' => 'numeric|gt:0',
         ]);
         if (\Auth::user() == null) {
             return view('home'); // jezli uzytkownik nie jest zalogowany
@@ -184,7 +153,7 @@ class StocksController extends Controller
         $transaction->comment = $request->comment;
 
         $ws = (WalletStocks::where('wallet_id', $wallet_id)->where('stock_id', $stock_id)->get())[0];
-        var_dump($ws);
+
         $amountBeforeSell = $ws->amount;
         $amountToSell = $request->amount;
 
@@ -195,6 +164,8 @@ class StocksController extends Controller
         }
         else {
             $ws->amount = $amountBeforeSell - $amountToSell;
+            $ws->price = $ws->price - $request->price + $request->comission;
+            $ws->comission = $ws->comission + $request->comission;
             if($ws->save() and $transaction->save()) {
                 return redirect(route('show', $request->wallet_name));
             }

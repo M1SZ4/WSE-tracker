@@ -25,7 +25,6 @@ Route::get('/wallet',[WalletsController::class,'index'])->name('wallet');
 Route::get('/create',[WalletsController::class,'create'])->name('create');
 Route::post('/create',[WalletsController::class,'store'])->name('store');
 Route::get('/wallet/{name}', [WalletsController::class, 'show'])->name('show');
-//Route::get('/wallet/{name}', [StocksController::class, 'index'])->name('stock');
 Route::get('/add',[StocksController::class,'create'])->name('create-transaction');
 Route::post('/add',[StocksController::class,'store'])->name('store-transaction');
 Route::get('/table', [TableController::class, 'index'])->name('table');
