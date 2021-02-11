@@ -69,6 +69,7 @@ class WalletsController extends Controller
      */
     public function show($name)
     {
+        $stocks = DB::table('stocks')->get();
         $wallet = DB::table('wallets')->where('name', $name)->get();
         $transactions = DB::table('transactions')->where('wallet_id', $wallet[0]->id)->get();
         $walletStocks = DB::table('wallet_stocks')->where('wallet_id', $wallet[0]->id)->get();
@@ -80,7 +81,7 @@ class WalletsController extends Controller
             array_push($dataPoints, array("label"=>($stockName), "y"=>($ws->price)));
         }
         return view('userWallet',  ['wallets'=>$wallet], ['transactions'=>$transactions])
-            ->with(['walletStocks'=>$walletStocks])->with(['dataPoints'=>$dataPoints]);
+            ->with(['walletStocks'=>$walletStocks])->with(['dataPoints'=>$dataPoints])->with(['stocks'=>$stocks]);
     }
 
     /**

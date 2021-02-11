@@ -3,10 +3,6 @@
 @section('content')
     @include('layouts.chart')
     @auth
-        <?php
-            $stocks = DB::table('stocks')->get();
-
-        ?>
 
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
@@ -58,12 +54,13 @@
 
             <!-- Wartość portfela -->
             <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
+                <div class="card border-left-info shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Wartość portfela</div>
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Wartość portfela
+                                </div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     {{ $total = (DB::table('wallet_stocks')
                                     ->join('stocks', 'stocks.id', '=', 'wallet_stocks.stock_id')
@@ -79,22 +76,27 @@
 
             <!-- Zysk -->
             <div class="col-xl-4 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
+                <div class="card border-left-dark shadow h-100 py-2">
                     <div class="card-body">
                         <div class="row no-gutters align-items-center">
                             <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Zysk
+                                <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                    Zysk
                                 </div>
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col-auto">
-                                        <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-                                            @if ($total_invested != 0)
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                    @if ($total_invested != 0)
+                                        @if ( round(($total- $total_invested) * 100 / $total_invested, 2) > 0)
+                                            <a style="color: green">
                                                 {{ round(($total- $total_invested) * 100 / $total_invested, 2) }}%
-                                            @else
-                                            {{ __('0') }}
-                                            @endif
-                                        </div>
-                                    </div>
+                                            </a>
+                                        @else
+                                            <a style="color: red">
+                                                {{ round(($total- $total_invested) * 100 / $total_invested, 2) }}%
+                                            </a>
+                                        @endif
+                                    @else
+                                    {{ __('0') }}
+                                    @endif
                                 </div>
                             </div>
                         </div>

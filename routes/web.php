@@ -21,7 +21,7 @@ Route::get('/', function () {
 });
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-Route::get('/wallet',[WalletsController::class,'index'])->name('wallet');
+Route::get('/wallet',[WalletsController::class,'index'])->name('wallet')->middleware('auth');
 Route::get('/create',[WalletsController::class,'create'])->name('create');
 Route::post('/create',[WalletsController::class,'store'])->name('store');
 Route::get('/wallet/{name}', [WalletsController::class, 'show'])->name('show');
