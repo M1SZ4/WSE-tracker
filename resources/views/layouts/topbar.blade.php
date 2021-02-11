@@ -8,6 +8,13 @@
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
+        @guest
+            <a href="{{ route('login') }}" class="text-sm text-gray-700 underline">Zaloguj</a>
+
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 underline">Rejestracja</a>
+            @endif
+        @endguest
 
         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
         <li class="nav-item dropdown no-arrow d-sm-none">

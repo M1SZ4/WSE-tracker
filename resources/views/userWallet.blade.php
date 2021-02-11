@@ -229,7 +229,7 @@
 
     @guest
         <div class="table-container">
-            <b>Zaloguj się aby przejrzeć komentarze.</b>
+            <b>Musisz być zalogowany aby przeglądać portfel.</b>
         </div>
     @endguest
 
