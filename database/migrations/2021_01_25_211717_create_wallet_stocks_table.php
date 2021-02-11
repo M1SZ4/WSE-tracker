@@ -17,8 +17,8 @@ class CreateWalletStocksTable extends Migration
             $table->id();
             $table->bigInteger('wallet_id')->unsigned();
             $table->bigInteger('stock_id')->unsigned();
-            $table->integer('amount')->nullable(false);
-            $table->float('price')->nullable(false);
+            $table->integer('amount');
+            $table->float('price');
             $table->float('comission');
             $table->date('data');
             $table->foreign('wallet_id')->references('id')->on('wallets')

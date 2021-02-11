@@ -18,10 +18,12 @@ class CreateTransactionsTable extends Migration
             $table->bigInteger('wallet_id')->unsigned();
             $table->bigInteger('stock_id')->unsigned();
             $table->text('type');
-            $table->integer('amount')->nullable(false);
-            $table->float('price')->nullable(false);
+            $table->integer('amount');
+            $table->float('price');
             $table->float('comission');
             $table->date('data');
+            $table->text('comment')->nullable();
+            $table->timestamps();
             $table->foreign('wallet_id')->references('id')->on('wallets')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('stock_id')->references('id')->on('stocks')

@@ -15,10 +15,11 @@ class CreateStocksTable extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
-            $table->text('symbol');
+            $table->text('symbol')->unique();
             $table->text('name');
-            $table->float('price');
+            $table->double('price', 8, 2);
+            $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP'));
         });
     }
 

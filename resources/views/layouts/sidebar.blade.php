@@ -23,7 +23,7 @@
     <li class="nav-item">
         <a class="nav-link" href="{{ route('table') }}">
             <i class="fas fa-fw fa-table"></i>
-            <span>Tables</span></a>
+            <span>Akcje WIG20</span></a>
     </li>
 
     <!-- Divider -->
