@@ -21,6 +21,7 @@ class CreateTransactionsTable extends Migration
             $table->integer('amount');
             $table->float('price');
             $table->float('comission');
+            $table->float('sum');
             $table->date('data');
             $table->text('comment')->nullable();
             $table->timestamps();

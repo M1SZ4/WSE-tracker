@@ -20,7 +20,9 @@ class CreateWalletStocksTable extends Migration
             $table->integer('amount');
             $table->float('price');
             $table->float('comission');
+            $table->float('sum');
             $table->date('data');
+            $table->timestamps();
             $table->foreign('wallet_id')->references('id')->on('wallets')
                 ->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('stock_id')->references('id')->on('stocks')

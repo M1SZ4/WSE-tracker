@@ -44,7 +44,7 @@
                                     Zainwestowana kwota</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     {{ $total_invested = DB::table('wallet_stocks')
-                                    ->where('wallet_id', $wallets[0]->id)->sum('price') }}
+                                    ->where('wallet_id', $wallets[0]->id)->sum('sum') }}
                                 </div>
                             </div>
                         </div>
@@ -146,20 +146,20 @@
                                         <tr>
                                             <th>{{ (DB::table('stocks')->select('name')->where('id',$ws->stock_id)
                                                 ->get())[0]->name }}</th>
-                                            <th>{{ $ws->price }}</th>
-                                            <th>{{ round(($ws->price / $ws->amount), 2) }}</th>
+                                            <th>{{ $ws->sum }}</th>
+                                            <th>{{ round(($ws->sum / $ws->amount), 2) }}</th>
                                             <th>{{ $ws->amount }}</th>
                                             <th>{{ $actual_price = (DB::table('stocks')->select('price')
                                                 ->where('id',$ws->stock_id)->get())[0]->price }}</th>
-                                            @if ($profit = $actual_price * ($ws->amount) - ($ws->price) > 0)
+                                            @if ($profit = $actual_price * ($ws->amount) - ($ws->sum) > 0)
                                                 <th style="color: green">
-                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->price)}}
-                                                    ({{ round((($profit * 100) / $ws->price), 2) }}%)
+                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->sum)}}
+                                                    ({{ round((($profit * 100) / $ws->sum), 2) }}%)
                                                 </th>
                                             @else
                                                 <th style="color: red">
-                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->price)}}
-                                                    ({{ round((($profit * 100) / $ws->price), 2) }}%)
+                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->sum)}}
+                                                    ({{ round((($profit * 100) / $ws->sum), 2) }}%)
                                                 </th>
                                             @endif
                                         </tr>
@@ -187,6 +187,7 @@
                             <th>Data</th>
                             <th>Nazwa</th>
                             <th>Typ</th>
+                            <th>Kurs</th>
                             <th>Ilość</th>
                             <th>Prowizja</th>
                             <th>Kwota</th>
@@ -198,6 +199,7 @@
                             <th>Data</th>
                             <th>Nazwa</th>
                             <th>Typ</th>
+                            <th>Kurs</th>
                             <th>Ilość</th>
                             <th>Prowizja</th>
                             <th>Kwota</th>
@@ -211,9 +213,10 @@
                                 <th>{{ (DB::table('stocks')->select('name')->where('id',$transaction->stock_id)
                                     ->get())[0]->name }}</th>
                                 <th>{{ $transaction->type }}</th>
+                                <th>{{ $transaction->price }}</th>
                                 <th>{{ $transaction->amount }}</th>
                                 <th>{{ $transaction->comission }}</th>
-                                <th>{{ $transaction->price }}</th>
+                                <th>{{ $transaction->sum }}</th>
                                 <th>{{ $transaction->comment }}</th>
                             </tr>
                         @endforeach
@@ -234,13 +237,13 @@
     @endguest
 
 
-    <!-- Add new wallet Modal-->
+    <!-- Add new stock to wallet-->
     <div class="modal fade" id="addWalletModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Utwórz nowy portfel</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Dodaj transakcje kupna</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -347,13 +350,13 @@
         </div>
     </div>
 
-    <!-- Add new wallet Modal-->
+    <!-- Sell stock from wallet-->
     <div class="modal fade" id="sell" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
          aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Utwórz nowy portfel</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Dodaj transakcje sprzedaży</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
