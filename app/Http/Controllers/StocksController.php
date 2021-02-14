@@ -19,8 +19,7 @@ class StocksController extends Controller
      */
     public function index()
     {
-//        $transactions = DB::table('transactions')->where('user_id', Auth::user()->id)->get()->get();
-//        return view('userWallet', ['transactions'=>$transactions]);
+
     }
 
     /**
@@ -48,7 +47,7 @@ class StocksController extends Controller
             'amount' => 'numeric|gt:0',
         ]);
         if (\Auth::user() == null) {
-            return view('home'); // jezli uzytkownik nie jest zalogowany
+            return view('home'); // if user is not logged in
         }
 
         $stock_id = (Stock::select('id')->where('name', $request->name)->get())[0]->id;
