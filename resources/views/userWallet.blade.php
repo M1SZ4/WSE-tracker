@@ -2,16 +2,22 @@
 
 @section('content')
     @include('layouts.chart')
+
     @auth
 
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Twój portfel: {{ $wallets[0]->name }}</h1>
+            <h1 class="h3 mb-0 text-gray-800">Twój portfel: {{ $wallet->name }}</h1>
         </div>
 
-        @if ($errors->any())
+        @if (session('status'))
+            <div class="alert alert-success">
+                {{ session('status') }}
+            </div>
+        @endif
+        @if($errors->any())
             <div class="alert alert-danger">
-                <ul>
+                <ul class="list-unstyled">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -44,7 +50,7 @@
                                     Zainwestowana kwota</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">
                                     {{ $total_invested = DB::table('wallet_stocks')
-                                    ->where('wallet_id', $wallets[0]->id)->sum('sum') }}
+                                    ->where('wallet_id', $wallet->id)->sum('sum') }}
                                 </div>
                             </div>
                         </div>
@@ -65,7 +71,7 @@
                                     {{ $total = (DB::table('wallet_stocks')
                                     ->join('stocks', 'stocks.id', '=', 'wallet_stocks.stock_id')
                                     ->select(DB::raw('sum(wallet_stocks.amount * stocks.price) AS total_price'))
-                                    ->where('wallet_stocks.wallet_id', $wallets[0]->id)
+                                    ->where('wallet_stocks.wallet_id', $wallet->id)
                                     ->first())->total_price }}
                                 </div>
                             </div>
@@ -144,7 +150,7 @@
                                     <tbody>
                                     @foreach($walletStocks as $ws)
                                         <tr>
-                                            <th>{{ (DB::table('stocks')->select('name')->where('id',$ws->stock_id)
+                                            <th>{{ (DB::table('stocks')->select('name')->where('id', $ws->stock_id)
                                                 ->get())[0]->name }}</th>
                                             <th>{{ $ws->sum }}</th>
                                             <th>{{ round(($ws->sum / $ws->amount), 2) }}</th>
@@ -153,12 +159,12 @@
                                                 ->where('id',$ws->stock_id)->get())[0]->price }}</th>
                                             @if ($profit = $actual_price * ($ws->amount) - ($ws->sum) > 0)
                                                 <th style="color: green">
-                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->sum)}}
+                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->sum) }}
                                                     ({{ round((($profit * 100) / $ws->sum), 2) }}%)
                                                 </th>
                                             @else
                                                 <th style="color: red">
-                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->sum)}}
+                                                    {{ $profit = $actual_price * ($ws->amount) - ($ws->sum) }}
                                                     ({{ round((($profit * 100) / $ws->sum), 2) }}%)
                                                 </th>
                                             @endif
@@ -210,7 +216,7 @@
                         @foreach($transactions as $transaction)
                             <tr>
                                 <th>{{ $transaction->data }}</th>
-                                <th>{{ (DB::table('stocks')->select('name')->where('id',$transaction->stock_id)
+                                <th>{{ (DB::table('stocks')->select('name')->where('id', $transaction->stock_id)
                                     ->get())[0]->name }}</th>
                                 <th>{{ $transaction->type }}</th>
                                 <th>{{ $transaction->price }}</th>
@@ -236,234 +242,6 @@
         </div>
     @endguest
 
-
-    <!-- Add new stock to wallet-->
-    <div class="modal fade" id="addWalletModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Dodaj transakcje kupna</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <form action="{{ route('store-transaction') }}" method="POST">
-                    {{ csrf_field() }}
-
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('wallet_name') is-invalid
-                                @enderror" id="wallet_name" value="{{ $wallets[0]->name }}" name="wallet_name" readonly>
-
-                            @error('wallet_name')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('transaction_type')
-                                is-invalid @enderror" id="transaction_type" value="Kupno" name="transaction_type"
-                                   readonly>
-
-                            @error('transaction_type')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <select class="form-control form-control-user" name="name">
-                                @foreach($stocks as $stock)
-                                    <option value="{{ $stock->name }}">{{ $stock->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <input type="date" class="form-control form-control-user @error('date') is-invalid
-                                @enderror" id="date" placeholder="date" name="date" required>
-
-                            @error('date')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('price') is-invalid
-                                @enderror" id="price" placeholder="Kurs" name="price">
-
-                            @error('price')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('amount')
-                                is-invalid @enderror" id="a,punt" placeholder="Ilość" name="amount">
-
-                            @error('amount')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('comission')
-                                is-invalid @enderror" id="comission" placeholder="Prowizja" name="comission">
-
-                            @error('price')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <textarea class="form-control form-control-user @error('comment') is-invalid @enderror"
-                                      id="comment" name="comment" rows="4" cols="50"  placeholder="Komentarz">
-
-                            </textarea>
-
-                            @error('comment')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Anuluj</button>
-                        <button class="btn btn-primary" type="submit">Dodaj</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sell stock from wallet-->
-    <div class="modal fade" id="sell" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Dodaj transakcje sprzedaży</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <form action="{{ route('update') }}" method="POST">
-                    {{ csrf_field() }}
-                    <input name="_method" type="hidden" value="PUT">
-                    <div class="modal-body">
-                        <input id="wallet_id" name="wallet_id" type="hidden" value="{{ $wallets[0]->id }}">
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('wallet_name') is-invalid
-                                @enderror" id="wallet_name" value="{{ $wallets[0]->name }}" name="wallet_name" readonly>
-
-                            @error('wallet_name')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('transaction_type')
-                                is-invalid @enderror" id="transaction_type" value="Sprzedaż" name="transaction_type"
-                                readonly>
-
-                            @error('transaction_type')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <select class="form-control form-control-user" name="name">
-                                @foreach($walletStocks as $ws)
-                                    <option value="{{ $name = (DB::table('stocks')->select('name')
-                                        ->where('id',$ws->stock_id)->get())[0]->name }}">{{ $name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <input type="date" class="form-control form-control-user @error('date') is-invalid
-                                @enderror" id="date" placeholder="date" name="date">
-
-                            @error('date')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('price') is-invalid
-                                @enderror" id="price" placeholder="Kurs" name="price">
-
-                            @error('price')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('amount')
-                                is-invalid @enderror" id="amount" placeholder="Ilość" name="amount">
-
-                            @error('amount')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <input type="text" class="form-control form-control-user @error('comission')
-                                is-invalid @enderror" id="comission" placeholder="Prowizja" name="comission">
-
-                            @error('price')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-
-                        <div class="form-group">
-                            <textarea class="form-control form-control-user @error('comment') is-invalid @enderror"
-                                      id="comment" name="comment" rows="4" cols="50"  placeholder="Komentarz">
-
-                            </textarea>
-
-                            @error('comment')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Anuluj</button>
-                        <button class="btn btn-primary" type="submit">Sprzedaj</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
+    @include('modals.buyShare')
+    @include('modals.sellShare')
 @endsection

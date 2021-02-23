@@ -14,7 +14,7 @@
 
     <!-- Nav Item - Dashboard -->
     <li class="nav-item">
-        <a class="nav-link" href="{{ route('wallet') }}">
+        <a class="nav-link" href="{{ route('wallets.index') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>{{ __('Portfel') }}</span></a>
     </li>

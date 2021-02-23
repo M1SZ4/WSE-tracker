@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Stock;
 
 class WalletsController extends Controller
 {
@@ -17,7 +17,7 @@ class WalletsController extends Controller
      */
     public function index()
     {
-        $wallets = DB::table('wallets')->where('user_id', Auth::user()->id)->get();
+        $wallets = Wallet::where('user_id', Auth::user()->id)->get();
         return view('wallets', ['wallets'=>$wallets]);
     }
 
@@ -28,8 +28,7 @@ class WalletsController extends Controller
      */
     public function create()
     {
-        $wallet = new Wallet();
-        return view('wallet',['wallet' => $wallet]);
+        //
     }
 
     /**
@@ -38,27 +37,20 @@ class WalletsController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(WalletRequest $request)
     {
-        $this->validate($request, [
-            'name' => 'required|min:3|max:50',
-        ]);
-        if (\Auth::user() == null) {
-            return view('home'); // jezli uzytkownik nie jest zalogowany
-        }
         $wallet = new Wallet();
-        $wallet->user_id = \Auth::user()->id; //id zalogowanego uzytkownika
-        $wallet->name = $request->name; //nazwa pola
-        if ($request->public) {
+        $wallet->user_id = Auth::user()->id; // id of the currently logged in user
+        $wallet->name = $request->name; // name of new wallet
+        if ($request->public) { // default value is 0, so wallet is private
             $wallet->public = "1";
         }
         else {
             $wallet->public = "0";
         }
-        if ($wallet->save()) {
-            return redirect('wallet');
-        }
-        return redirect('wallet');
+
+        $wallet->save();
+        return redirect()->route('wallets.index')->with('status', 'Pomyślnie utworzono portfel');
     }
 
     /**
@@ -67,21 +59,9 @@ class WalletsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($name)
+    public function show($id)
     {
-        $stocks = DB::table('stocks')->get();
-        $wallet = DB::table('wallets')->where('name', $name)->get();
-        $transactions = DB::table('transactions')->where('wallet_id', $wallet[0]->id)->get();
-        $walletStocks = DB::table('wallet_stocks')->where('wallet_id', $wallet[0]->id)->get();
-//        array for chart in user wallet view
-        $dataPoints = array();
-        foreach ($walletStocks as $ws) {
-            $stockName = (DB::table('stocks')->where('id',$ws->stock_id)->get())[0]->name;
-            $stockPrice = (DB::table('stocks')->where('name', $stockName)->get())[0]->price;
-            array_push($dataPoints, array("label"=>($stockName), "y"=>($stockPrice * $ws->amount)));
-        }
-        return view('userWallet',  ['wallets'=>$wallet], ['transactions'=>$transactions])
-            ->with(['walletStocks'=>$walletStocks])->with(['dataPoints'=>$dataPoints])->with(['stocks'=>$stocks]);
+        //
     }
 
     /**
@@ -102,9 +82,12 @@ class WalletsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(WalletRequest $request, Wallet $wallet)
     {
-        //
+        $wallet->name = $request->name;
+        $wallet->save();
+
+        return redirect()->route('wallets.index')->with('status', 'Pomyślnie zmieniono nazwę');
     }
 
     /**
@@ -113,8 +96,10 @@ class WalletsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Wallet $wallet)
     {
-        //
+        $wallet->delete();
+
+        return redirect()->route('wallets.index')->with('status', 'Pomyślnie usunięto');
     }
 }
