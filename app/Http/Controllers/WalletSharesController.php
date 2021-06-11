@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\WalletSharesRequest;
+use App\Models\Wallet;
 use App\Models\WalletStocks;
 use App\Models\transaction;
 use App\Models\Stock;
@@ -11,7 +12,15 @@ use function PHPUnit\Framework\lessThanOrEqual;
 
 class WalletSharesController extends Controller
 {
+    private $stock, $wallet, $walletStocks, $transaction;
 
+    public function __construct()
+    {
+        $this->stock = new Stock();
+        $this->walletStocks = new WalletStocks();
+        $this->wallet = new Wallet();
+        $this->transaction = new Transaction();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -68,30 +77,22 @@ class WalletSharesController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Display information about shares on user wallet.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param string $walletName
+     * @return \Illuminate\Contracts\View\View
      */
-    public function show($name)
+    public function show($walletName)
     {
-        $stocks = DB::table('stocks')->get();
-        $wallet = DB::table('wallets')->where('name', $name)->first();
-        $transactions = DB::table('transactions')->where('wallet_id', $wallet->id)->get();
-        $walletStocks = DB::table('wallet_stocks')->where('wallet_id', $wallet->id)->get();
-
-        $dataPoints = array(); // array for chart in user wallet view
-        foreach ($walletStocks as $ws) {
-            $stockInfo = Stock::select('name', 'price')->where('id',$ws->stock_id)->first();
-            array_push($dataPoints, array("label"=>($stockInfo->name), "y"=>($stockInfo->price * $ws->amount)));
-        }
+        $wallet = $this->wallet->getWalletInfo($walletName);
+        $walletStocks = $this->walletStocks->getSharesForWallet($wallet->id);
 
         return view('userWallet')->with([
-            'wallet'=>$wallet,
-            'transactions'=>$transactions,
-            'walletStocks'=>$walletStocks,
-            'dataPoints'=>$dataPoints,
-            'stocks'=>$stocks,
+            'wallet' => $wallet,
+            'walletStocks' => $walletStocks,
+            'transactions' => $this->transaction->getTransactionsForWallet($wallet->id),
+            'stocks' => $this->stock->getFullTable(),
+            'dataPoints' => $this->stock->getSharesFromWalletAsDataPoints($walletStocks),
         ]);
     }
 

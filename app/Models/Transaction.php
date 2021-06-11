@@ -14,4 +14,9 @@ class Transaction extends Model
     public function wallet() {
         return $this->hasMany(Wallet::class);
     }
+
+    public function getTransactionsForWallet($walletId)
+    {
+        return $this->where('wallet_id', $walletId)->get();
+    }
 }

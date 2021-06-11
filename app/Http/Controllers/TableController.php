@@ -2,20 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Stock;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+
 
 class TableController extends Controller
 {
+    private $stock;
+
+    public function __construct()
+    {
+        $this->stock = new Stock();
+    }
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
-        $stocks = DB::table('stocks')->get();
-        return view('tables', ['stocks'=>$stocks]);
+        return view('tables', ['stocks' => $this->stock->getFullTable()]);
     }
 
     /**

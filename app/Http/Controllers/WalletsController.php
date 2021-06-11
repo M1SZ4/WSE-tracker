@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+
 use App\Models\Wallet;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use App\Models\Stock;
+
 
 class WalletsController extends Controller
 {
+    private $wallet;
+    
+    public function __construct()
+    {
+        $this->wallet = new Wallet();
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,8 +22,7 @@ class WalletsController extends Controller
      */
     public function index()
     {
-        $wallets = Wallet::where('user_id', Auth::user()->id)->get();
-        return view('wallets', ['wallets'=>$wallets]);
+        return view('wallets', ['wallets'=> $this->wallet->getUserWallets()]);
     }
 
     /**
